@@ -5,5 +5,5 @@ This is the first programming assignment of Deep Learning course offered at IIT 
 ## For running the code
 
 - Make sure all the files and dataset are in the same directory. 
-- For Classification on images file, do remember to create folders which will store resized images before running the code.
+- For Classification on images file and also on BoVW file, do remember to create folders which will store resized images before running the code.
 - You may have to re-run the code while training a neural network as much depends on initialization of parameters which has been done by random function in the code.
