@@ -20,6 +20,9 @@ def tanh(beta, x):
 def linear(beta, x):
     return x
 
+def softmax(beta, x):
+    return (np.exp(x.T)/sum(np.exp(x.T))).T
+
 
 def act(actFun, vec, β):
     if(actFun == 'logistic'):
@@ -28,6 +31,8 @@ def act(actFun, vec, β):
         return tanh(β, vec)
     elif(actFun == 'linear'):
         return linear(β, vec)
+    elif(actFun == 'softmax'):
+        return softmax(β, vec)
     else:
         print('No such activation function exists')
         return
@@ -107,12 +112,18 @@ class MLNN(object):
                 A[h] = Ah
                 S[h+1] = Sh
                 
-                
-            err = ((Ydata-S[-1])**2)/(2*N)
+            if(self.actFuns[-1] == 'softmax'):
+                err = (-np.log(np.sum(np.multiply(Ydata, S[-1]), axis = 1)))/(2*N)
+            else:
+                err = ((Ydata-S[-1])**2)/(2*N)
             avgErrors.append(np.sum(err))
             
             δ = [0]*(self.layers-1)
-            δ[-1] = np.multiply((Ydata-S[-1]), dact(self.actFuns[-1], A[-1], β))
+            
+            if(self.actFuns[-1] == 'softmax'):
+                δ[-1] = np.multiply((1 - S[-1]), Ydata)
+            else:
+                δ[-1] = np.multiply((Ydata-S[-1]), dact(self.actFuns[-1], A[-1], β))
             
             
             for h in range(self.layers-3, -1, -1):
@@ -126,7 +137,7 @@ class MLNN(object):
                 self.weights[h] += (δw + α*δweights[h])
                 δweights[h] = δw
     
-            #print(δweights) 
+            print('echo %d, error = %.2f'%(i,avgErrors[-1])) 
                 
         plt.plot(list(range(1, epochs + 1, 1)), avgErrors)
         plt.title('Epochs vs Avg Error')
